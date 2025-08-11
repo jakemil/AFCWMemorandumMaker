@@ -16,13 +16,13 @@ class Form extends Component {
     this.initialState = {
       department: 'DEPARTMENT OF THE AIR FORCE',
       departmentNameUpper: "DEPARTMENT OF THE AIR FORCE",
-      unit: 'Type your Unit Here',
-      base: 'Optional Second Unit Header Line',
+      unit: 'United States Air Force Academy',
+      base: 'Cadet Squadron 15',
       attn: 'Insert Receiver of Memorandum Here',
       from: 'Insert Sender Information Here',
       subject: 'Insert Subject Here',
       dutytitle: "Enter Signer's Position Here",
-      rank: "Select Signer's Rank",
+      rank: "",
       writersname: "Insert Signer's Name FIRST MI. LAST",
       branch: "USAF",
       references: '',
@@ -35,6 +35,7 @@ class Form extends Component {
       showModal: false
     };
     this.state = {
+      rank: "",
       branch: "USAF",
       references: '',
       paragraphArray: [
