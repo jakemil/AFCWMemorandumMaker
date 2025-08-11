@@ -37,7 +37,7 @@ var pdf = new jsPDF({
 });
 
 function addWrappedText({ text, textWidth, pdf, fontSize = 12, fontType = 'normal', lineSpacing, xPosition, initialYPosition, pageWrapInitialYPosition = 1}) {
-  pdf.setFontType(fontType);
+  pdf.setFont("helvetica", fontType);
   pdf.setFontSize(fontSize);
   var textLines = pdf.splitTextToSize(text, textWidth); // Split the text into lines
   var pageHeight = pdf.internal.pageSize.height - 1; // Get page height, we'll use this for auto-paging. TRANSLATE this line if using units other than `pt`
@@ -149,13 +149,12 @@ class GenerateMemorandum extends Component {
     pdf.addImage(sessionStorage.getItem('MemoHeaderLogoBase').toString(), 'PNG', .4, .4, 1, 1)
 
     //DEPARTMENT
-    pdf.setFont("Helvetica")
-    pdf.setFontStyle("bold");
+    pdf.setFont("helvetica", "bold");
     pdf.setFontSize(12);
     pdf.text(LSGETDEPARTMENT, 4.25, .845, null, null, "center");
 
     //BASE
-    pdf.setFontStyle("normal");
+    pdf.setFont("helvetica", "normal");
     pdf.text(LSGETUNIT, 4.25, 1.039, "center");
     pdf.text(LSGETBASE, 4.25, 1.039 + oneLineHeight, "center");
 
@@ -163,7 +162,7 @@ class GenerateMemorandum extends Component {
 
 
     //HEADING
-    pdf.setFont('Times New Roman');
+    pdf.setFont('times', 'normal');
     //Date
     pdf.text(LSGETDATE, 7.5, DATEHEIGHT, null, null, "right");
 
