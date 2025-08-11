@@ -1,11 +1,15 @@
 import React, { Component } from 'react';
-import { BrowserRouter as HashRouter, Switch, Route, Link } from 'react-router-dom';
+import { HashRouter, Switch, Route, Link } from 'react-router-dom';
 import Home from './components/Home';
 import About from './components/About';
 import Memorandum from './components/Memorandum';
 import GenerateMemorandum from './components/GenerateMemorandum';
+import './App.css';
 
-
+// Define TESTParametersButton component at the top
+const TESTParametersButton = () => (
+  <button style={{margin: '5px', height: '50px', display: 'none'}} form="setTestForm" type="submit">Set Test Parameters</button>
+);
 
 class App extends Component {
 
@@ -44,9 +48,9 @@ render() {
   sessionStorage.setItem("adv", ",,,")
 }
 return (
-<HashRouter basename={process.env.PUBLIC_URL + '/#/'}>
+<HashRouter>
   <div>
-    <h2>Wecome to the Official Memorandum Maker</h2>
+    <h2>Welcome to the Official Memorandum Maker</h2>
 {/*
     <svg style={{width: '80'}} className="devCorner" viewBox="0 0 80 80" aria-hidden="true">
       <path fill="rgb(70, 74, 78)" d="M80 0L80 80L0 0L80 0Z"></path>
@@ -79,7 +83,4 @@ return (
 }
 }
 
-const TESTParametersButton = () => (
-<button style={{margin: '5px', height: '50px', display: 'none'}} form="setTestForm" type="submit">Set Test Parameters</button>
-)
 export default App;

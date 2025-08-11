@@ -9,14 +9,14 @@
     "@testing-library/user-event": "^7.2.1",
     "docx": "^5.0.2",
     "file-saver": "^2.0.2",
-    "file-system": "^2.2.2",
+    "file-system": "^1.2.2",
     "jspdf-react": "^1.0.11",
     "moment": "^2.24.0",
     "react": "^16.13.1",
     "react-beautiful-dnd": "^13.1.1",
     "react-device-detect": "^1.11.14",
     "react-dom": "^16.13.1",
-    "react-scripts": "3.4.0"
+    "react-scripts": "^5.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
