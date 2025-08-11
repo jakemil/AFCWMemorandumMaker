@@ -1,0 +1,21 @@
+{
+  "files": {
+    "main.css": "/OfficialMemorandumMaker/static/css/main.4c546975.css",
+    "main.js": "/OfficialMemorandumMaker/static/js/main.e897e964.js",
+    "static/js/239.97ab687c.chunk.js": "/OfficialMemorandumMaker/static/js/239.97ab687c.chunk.js",
+    "static/js/213.31877f43.chunk.js": "/OfficialMemorandumMaker/static/js/213.31877f43.chunk.js",
+    "static/js/732.4b0b222f.chunk.js": "/OfficialMemorandumMaker/static/js/732.4b0b222f.chunk.js",
+    "static/media/attnFromExample.JPG": "/OfficialMemorandumMaker/static/media/attnFromExample.9f8fd532559693118de8.JPG",
+    "static/media/DoD Seal.PNG": "/OfficialMemorandumMaker/static/media/DoD Seal.ee63e53b1d6615aa3998.PNG",
+    "index.html": "/OfficialMemorandumMaker/index.html",
+    "main.4c546975.css.map": "/OfficialMemorandumMaker/static/css/main.4c546975.css.map",
+    "main.e897e964.js.map": "/OfficialMemorandumMaker/static/js/main.e897e964.js.map",
+    "239.97ab687c.chunk.js.map": "/OfficialMemorandumMaker/static/js/239.97ab687c.chunk.js.map",
+    "213.31877f43.chunk.js.map": "/OfficialMemorandumMaker/static/js/213.31877f43.chunk.js.map",
+    "732.4b0b222f.chunk.js.map": "/OfficialMemorandumMaker/static/js/732.4b0b222f.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.4c546975.css",
+    "static/js/main.e897e964.js"
+  ]
+}
