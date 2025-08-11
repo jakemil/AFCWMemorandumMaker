@@ -34,7 +34,7 @@ class App extends Component {
         window.open("http://www.airforcewriter.com/officialmemorandum.htm");
     }
     TheTongueAndQuillLink(){
-        window.open("https://static.e-publishing.af.mil/production/1/saf_cio_a6/publication/afh33-337/afh33-337.pdf");
+        window.open("https://static.e-publishing.af.mil//production/1/saf_ds/publication/afh33-337/afh33-337.pdf");
     }
     GitHubLink(){
         window.open("https://github.com/jakemil")
