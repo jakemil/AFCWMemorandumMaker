@@ -168,10 +168,10 @@ class GenerateMemorandum extends Component {
 
 
     //MEMORANDUM FOR:
-    pdf.text("MEMORANDUM FOR  " + LSGETATTN, 1, ATTNHEIGHT);
+    pdf.text("MEMORANDUM FOR  " + LSGETATTN.toUpperCase(), 1, ATTNHEIGHT);
     insertAdvancedATTN();
 
-    pdf.text("FROM:  " + LSGETFROM, 1, cursorY += oneLineHeight);
+    pdf.text("FROM:  " + LSGETFROM.toUpperCase(), 1, cursorY += oneLineHeight);
     insertAdvancedFROM();
 
 
