@@ -99,6 +99,28 @@ class Form extends Component {
     });
   }
 
+  addParagraphAfter = (index) => {
+    this.setState((prevState) => {
+      const paragraphArray = [...prevState.paragraphArray];
+      paragraphArray.splice(index + 1, 0, {
+        paraInfo: "",
+        subparagraphs: []
+      });
+      return { paragraphArray };
+    });
+  }
+
+  addSubparagraphTo = (paragraphIndex) => {
+    this.setState((prevState) => {
+      const paragraphArray = [...prevState.paragraphArray];
+      if (!paragraphArray[paragraphIndex].subparagraphs) {
+        paragraphArray[paragraphIndex].subparagraphs = [];
+      }
+      paragraphArray[paragraphIndex].subparagraphs.push("");
+      return { paragraphArray };
+    });
+  }
+
   showModal = e => {
       this.setState({
         showModal: !this.state.showModal
@@ -352,10 +374,11 @@ class Form extends Component {
           onSubparagraphChange={this.handleSubparagraphChange}
           onRemoveParagraph={this.removeParagraph}
           onRemoveSubparagraph={this.removeSubparagraph}
+          onAddParagraphAfter={this.addParagraphAfter}
+          onAddSubparagraphTo={this.addSubparagraphTo}
         />
 
-        <button onClick={this.addParagraph} type="button">Add New Paragraph</button>
-        <button onClick={this.addSubparagraphToLast} type="button" style={{marginLeft: '10px'}}>Add Subparagraph to Last Paragraph</button>
+
             {
 
                 //SIGNATURE BLOCK

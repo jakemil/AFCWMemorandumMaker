@@ -18,7 +18,11 @@ const ParagraphInputs = (props) => {
             className="paraInfo"
             onChange={props.onParagraphChange}
           />
-          <button type="button" onClick={() => props.onRemoveParagraph(index)} style={{marginLeft: '10px', color: 'red'}}>Remove Paragraph</button>
+          <div style={{marginTop: '5px'}}>
+            <button type="button" onClick={() => props.onAddParagraphAfter(index)} style={{marginRight: '10px', backgroundColor: '#4CAF50', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '3px'}}>Add Paragraph After</button>
+            <button type="button" onClick={() => props.onAddSubparagraphTo(index)} style={{marginRight: '10px', backgroundColor: '#2196F3', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '3px'}}>Add Subparagraph</button>
+            <button type="button" onClick={() => props.onRemoveParagraph(index)} style={{color: 'white', backgroundColor: '#f44336', border: 'none', padding: '5px 10px', borderRadius: '3px'}}>Remove Paragraph</button>
+          </div>
           {/* Render subparagraphs if any */}
           {val.subparagraphs && val.subparagraphs.length > 0 && (
             <div style={{marginLeft: '2em', marginTop: '0.5em'}}>
@@ -37,7 +41,11 @@ const ParagraphInputs = (props) => {
                     className="subparagraphInfo"
                     onChange={props.onSubparagraphChange}
                   />
-                  <button type="button" onClick={() => props.onRemoveSubparagraph(index, subIdx)} style={{marginLeft: '10px', color: 'red'}}>Remove Subparagraph</button>
+                  <div style={{marginTop: '5px'}}>
+                    <button type="button" onClick={() => props.onAddParagraphAfter(index)} style={{marginRight: '10px', backgroundColor: '#4CAF50', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '3px'}}>Add Paragraph After</button>
+                    <button type="button" onClick={() => props.onAddSubparagraphTo(index)} style={{marginRight: '10px', backgroundColor: '#2196F3', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '3px'}}>Add Subparagraph</button>
+                    <button type="button" onClick={() => props.onRemoveSubparagraph(index, subIdx)} style={{color: 'white', backgroundColor: '#f44336', border: 'none', padding: '5px 10px', borderRadius: '3px'}}>Remove Subparagraph</button>
+                  </div>
                 </div>
               ))}
             </div>
