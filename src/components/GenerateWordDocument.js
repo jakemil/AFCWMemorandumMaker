@@ -599,18 +599,35 @@ class GenerateWordDocument extends Component {
   }
   render() {
     this.fillVariables();
-    return (<div style={{display: 'inline'}}>
-
-      <button style={{margin:'5px', display:"none"}} onClick={this.generateWrappedDocumentWithHeader} type="submit">
-        Generate Word Document (Must Edit Header and Select 'Different First Page')
+    return (<div style={{display: 'inline', marginRight: '1rem'}}>
+      <button 
+        onClick={this.grnerateWrappedDocumentAdvancedHeader} 
+        type="submit"
+        style={{
+          background: 'linear-gradient(135deg, #4A90E2 0%, #357abd 100%)', 
+          border: 'none', 
+          color: 'white', 
+          padding: '12px 24px', 
+          borderRadius: '10px', 
+          fontSize: '16px', 
+          fontWeight: '600', 
+          cursor: 'pointer', 
+          transition: 'all 0.3s ease',
+          boxShadow: '0 4px 15px rgba(74, 144, 226, 0.3)',
+          minWidth: '160px',
+          display: 'none'
+        }}
+        onMouseEnter={(e) => {
+          e.target.style.transform = 'translateY(-2px)';
+          e.target.style.boxShadow = '0 6px 25px rgba(74, 144, 226, 0.4)';
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.transform = 'translateY(0)';
+          e.target.style.boxShadow = '0 4px 15px rgba(74, 144, 226, 0.3)';
+        }}
+      >
+        📝 Generate Word Doc
       </button>
-      <button style={{margin:'5px'}} onClick={this.grnerateWrappedDocumentAdvancedHeader} type="submit">
-        Generate Word Document (Must Edit Header and Select 'Different First Page')
-      </button>
-      <button style={{margin:'5px', display: "none"}} onClick={this.generateWrappedDocumentNoHeader} type="submit">
-        Generate Word Document Without Header
-      </button>
-
     </div>)
   }
 }

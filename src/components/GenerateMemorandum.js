@@ -250,9 +250,33 @@ fillVariables() {
   }
   render() {
     this.fillVariables();
-    return (<div style={{display:'inline'}}>
-      <button style={{margin:'5px'}} onClick={this.generateWrappedMemorandum3} type="submit">
-        Generate PDF
+    return (<div style={{display:'inline', marginRight: '1rem'}}>
+      <button 
+        onClick={this.generateWrappedMemorandum3} 
+        type="submit"
+        style={{
+          background: 'linear-gradient(135deg, #FF6B6B 0%, #ee5a52 100%)', 
+          border: 'none', 
+          color: 'white', 
+          padding: '12px 24px', 
+          borderRadius: '10px', 
+          fontSize: '16px', 
+          fontWeight: '600', 
+          cursor: 'pointer', 
+          transition: 'all 0.3s ease',
+          boxShadow: '0 4px 15px rgba(255, 107, 107, 0.3)',
+          minWidth: '160px'
+        }}
+        onMouseEnter={(e) => {
+          e.target.style.transform = 'translateY(-2px)';
+          e.target.style.boxShadow = '0 6px 25px rgba(255, 107, 107, 0.4)';
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.transform = 'translateY(0)';
+          e.target.style.boxShadow = '0 4px 15px rgba(255, 107, 107, 0.3)';
+        }}
+      >
+        📄 Generate PDF
       </button>
     </div>)
   }

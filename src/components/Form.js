@@ -458,17 +458,62 @@ class Form extends Component {
 
 
         </form>
-        <div class="col50">
-        <button style={{width: '100%'}} form="memorandumForm" type="submit">
-            Submit
-        </button>
-        </div>
+        
+        <div style={{display: 'flex', gap: '1rem', marginTop: '2rem', justifyContent: 'center', flexWrap: 'wrap'}}>
+          <button 
+            form="memorandumForm" 
+            type="submit"
+            style={{
+              background: 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)', 
+              border: 'none', 
+              color: 'white', 
+              padding: '16px 32px', 
+              borderRadius: '12px', 
+              fontSize: '18px', 
+              fontWeight: '600', 
+              cursor: 'pointer', 
+              transition: 'all 0.3s ease',
+              boxShadow: '0 4px 20px rgba(76, 175, 80, 0.3)',
+              minWidth: '180px'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.transform = 'translateY(-3px)';
+              e.target.style.boxShadow = '0 8px 30px rgba(76, 175, 80, 0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = 'translateY(0)';
+              e.target.style.boxShadow = '0 4px 20px rgba(76, 175, 80, 0.3)';
+            }}
+          >
+            ✅ Submit Memorandum
+          </button>
 
-        <div class="col50">
-        <button style={{width: "100%"}} onClick={this.clearForm} >
-            Clear Form
-        </button>
-
+          <button 
+            onClick={this.clearForm}
+            style={{
+              background: 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)', 
+              border: 'none', 
+              color: 'white', 
+              padding: '16px 32px', 
+              borderRadius: '12px', 
+              fontSize: '18px', 
+              fontWeight: '600', 
+              cursor: 'pointer', 
+              transition: 'all 0.3s ease',
+              boxShadow: '0 4px 20px rgba(244, 67, 54, 0.3)',
+              minWidth: '180px'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.transform = 'translateY(-3px)';
+              e.target.style.boxShadow = '0 8px 30px rgba(244, 67, 54, 0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = 'translateY(0)';
+              e.target.style.boxShadow = '0 4px 20px rgba(244, 67, 54, 0.3)';
+            }}
+          >
+            🗑️ Clear Form
+          </button>
         </div>
 </div>
 
