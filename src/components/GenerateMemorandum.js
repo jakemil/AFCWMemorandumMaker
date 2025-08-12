@@ -37,7 +37,7 @@ var pdf = new jsPDF({
 });
 
 function addWrappedText({ text, textWidth, pdf, fontSize = 12, fontType = 'normal', lineSpacing, xPosition, initialYPosition, pageWrapInitialYPosition = 1}) {
-  pdf.setFont("helvetica", fontType);
+  pdf.setFont("times", fontType);
   pdf.setFontSize(fontSize);
   var textLines = pdf.splitTextToSize(text, textWidth); // Split the text into lines
   var pageHeight = pdf.internal.pageSize.height - 1; // Get page height, we'll use this for auto-paging. TRANSLATE this line if using units other than `pt`
