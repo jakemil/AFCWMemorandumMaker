@@ -100,12 +100,25 @@ class Memorandum extends Component {
         // Add subparagraphs if any
         if (paragraph.subparagraphs && paragraph.subparagraphs.length > 0) {
           paragraph.subparagraphs.forEach((subparagraph, subIndex) => {
+            const subText = subparagraph.subparagraphInfo || subparagraph;
             paragraphItems.push(
               <div key={`subpara-${index}-${subIndex}`}>
-                <span style={{marginLeft: '2.5em'}}>{String.fromCharCode(97 + subIndex)}. {subparagraph}</span>
+                <span style={{marginLeft: '2.5em'}}>{String.fromCharCode(97 + subIndex)}. {subText}</span>
                 <br /><br />
               </div>
             );
+            
+            // Add sub-sub paragraphs if any
+            if (subparagraph.subSubparagraphs && subparagraph.subSubparagraphs.length > 0) {
+              subparagraph.subSubparagraphs.forEach((subSubparagraph, subSubIndex) => {
+                paragraphItems.push(
+                  <div key={`subsubpara-${index}-${subIndex}-${subSubIndex}`}>
+                    <span style={{marginLeft: '5em'}}>({subSubIndex + 1}). {subSubparagraph}</span>
+                    <br /><br />
+                  </div>
+                );
+              });
+            }
           });
         }
       });
@@ -140,10 +153,32 @@ class Memorandum extends Component {
             </div>
           )}
           {paragraphItems}
-          Duty Position: {memorandum[0].dutytitle}
-          <br /><br />
-          {memorandum[0].writersname}, {memorandum[0].rank}, {memorandum[0].branch}
-          <br /><br />
+          
+          {/* Signature Block */}
+          {sessionStorage.getItem("dualSignature") === "true" ? (
+            <div>
+              <div style={{display: 'flex', justifyContent: 'space-between', marginTop: '2rem'}}>
+                <div style={{textAlign: 'left'}}>
+                  <strong>Junior Signer:</strong><br />
+                  Duty Position: {sessionStorage.getItem("dutytitle2")}<br />
+                  {sessionStorage.getItem("writersname2")}, {sessionStorage.getItem("rank2")}, {sessionStorage.getItem("branch2")}
+                </div>
+                <div style={{textAlign: 'right'}}>
+                  <strong>Senior Signer:</strong><br />
+                  Duty Position: {memorandum[0].dutytitle}<br />
+                  {memorandum[0].writersname}, {memorandum[0].rank}, {memorandum[0].branch}
+                </div>
+              </div>
+              <br /><br />
+            </div>
+          ) : (
+            <div>
+              Duty Position: {memorandum[0].dutytitle}
+              <br /><br />
+              {memorandum[0].writersname}, {memorandum[0].rank}, {memorandum[0].branch}
+              <br /><br />
+            </div>
+          )}
         </div>
     );
   }

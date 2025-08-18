@@ -19,6 +19,11 @@ var LSGETDUTYTITLE;
 var LSGETRANK;
 var LSGETWRITERSNAME;
 var LSGETBRANCH;
+var LSGETDUALSIGNATURE;
+var LSGETRANK2;
+var LSGETWRITERSNAME2;
+var LSGETDUTYTITLE2;
+var LSGETBRANCH2;
 var LSGETNUMBEROFPARAGRAPHS;
 var LSGETADVHEADING;
 var LSGETNUMBEROFATTN;
@@ -75,7 +80,7 @@ function insertMultipleParagraphs() {
     if (paragraph.subparagraphs && paragraph.subparagraphs.length > 0) {
       paragraph.subparagraphs.forEach((subparagraph, subIndex) => {
         var SUBPARAGRAPH_LABEL = '     ' + String.fromCharCode(97 + subIndex) + '.  ';
-        var SUBPARAGRAPH_TEXT = subparagraph;
+        var SUBPARAGRAPH_TEXT = subparagraph.subparagraphInfo || subparagraph;
         addWrappedText({
           text: SUBPARAGRAPH_LABEL + SUBPARAGRAPH_TEXT,
           textWidth: 6.5,
@@ -87,6 +92,25 @@ function insertMultipleParagraphs() {
           initialYPosition: cursorY + oneLineHeight,
           pageWrapInitialYPosition: 1
         });
+        
+        // Add sub-sub paragraphs if any
+        if (subparagraph.subSubparagraphs && subparagraph.subSubparagraphs.length > 0) {
+          subparagraph.subSubparagraphs.forEach((subSubparagraph, subSubIndex) => {
+            var SUBSUBPARAGRAPH_LABEL = '          (' + (subSubIndex + 1) + ')  ';
+            var SUBSUBPARAGRAPH_TEXT = subSubparagraph;
+            addWrappedText({
+              text: SUBSUBPARAGRAPH_LABEL + SUBSUBPARAGRAPH_TEXT,
+              textWidth: 6.5,
+              pdf,
+              fontSize: '12',
+              fontType: 'normal',
+              lineSpacing: oneLineHeight,
+              xPosition: margin,
+              initialYPosition: cursorY + oneLineHeight,
+              pageWrapInitialYPosition: 1
+            });
+          });
+        }
       });
     }
   });
@@ -140,6 +164,21 @@ function insertAdvancedFROM() {
   }
 }}
 
+// Function to determine if first rank is senior to second rank
+function isRankSenior(rank1, rank2) {
+  const rankOrder = {
+    'C1C': 1, 'C2C': 2, 'C3C': 3, 'C4C': 4,
+    'SSgt': 5, 'TSgt': 6, 'MSgt': 7, 'SMSgt': 8, 'CMSgt': 9,
+    '2d Lt': 10, '1st Lt': 11, 'Capt': 12, 'Maj': 13,
+    'Lt. Col.': 14, 'Colonel': 15, 'Brigadier General': 16,
+    'Major General': 17, 'Lieutenant General': 18, 'General': 19
+  };
+  
+  const rank1Order = rankOrder[rank1] || 0;
+  const rank2Order = rankOrder[rank2] || 0;
+  
+  return rank1Order > rank2Order;
+}
 
 class GenerateMemorandum extends Component {
   generateWrappedMemorandum3 = () => {
@@ -201,9 +240,31 @@ class GenerateMemorandum extends Component {
 
 
     //SIGNATURE BLOCK
-    //var SIGNATUREHEIGHT = PARAONEHEIGHT + PARA1TextHeight + (oneLineHeight * 5);
-    pdf.text(LSGETWRITERSNAME + ', ' + LSGETRANK + ', ' + LSGETBRANCH, 4.5, cursorY + (oneLineHeight * 5));
-    pdf.text(LSGETDUTYTITLE, 4.5, cursorY + (oneLineHeight * 6));
+    if (LSGETDUALSIGNATURE === 'true' || LSGETDUALSIGNATURE === true) {
+      // Dual signature: junior on left, senior on right (4.5 inches from left edge)
+      // Determine which is junior/senior by comparing ranks
+      var isFirstSenior = isRankSenior(LSGETRANK, LSGETRANK2);
+      
+      if (isFirstSenior) {
+        // First signer is senior (right), second signer is junior (left)
+        pdf.text(LSGETWRITERSNAME2 + ', ' + LSGETRANK2 + ', ' + LSGETBRANCH2, 1, cursorY + (oneLineHeight * 5));
+        pdf.text(LSGETDUTYTITLE2, 1, cursorY + (oneLineHeight * 6));
+        
+        pdf.text(LSGETWRITERSNAME + ', ' + LSGETRANK + ', ' + LSGETBRANCH, 4.5, cursorY + (oneLineHeight * 5));
+        pdf.text(LSGETDUTYTITLE, 4.5, cursorY + (oneLineHeight * 6));
+      } else {
+        // First signer is junior (left), second signer is senior (right)
+        pdf.text(LSGETWRITERSNAME + ', ' + LSGETRANK + ', ' + LSGETBRANCH, 1, cursorY + (oneLineHeight * 5));
+        pdf.text(LSGETDUTYTITLE, 1, cursorY + (oneLineHeight * 6));
+        
+        pdf.text(LSGETWRITERSNAME2 + ', ' + LSGETRANK2 + ', ' + LSGETBRANCH2, 4.5, cursorY + (oneLineHeight * 5));
+        pdf.text(LSGETDUTYTITLE2, 4.5, cursorY + (oneLineHeight * 6));
+      }
+    } else {
+      // Single signature block (centered)
+      pdf.text(LSGETWRITERSNAME + ', ' + LSGETRANK + ', ' + LSGETBRANCH, 4.5, cursorY + (oneLineHeight * 5));
+      pdf.text(LSGETDUTYTITLE, 4.5, cursorY + (oneLineHeight * 6));
+    }
     pdf.setProperties({
       title: LSGETSUBJECT,
     })
@@ -247,6 +308,11 @@ fillVariables() {
     LSGETRANK = sessionStorage.getItem("rank");
     LSGETWRITERSNAME = sessionStorage.getItem("writersname");
     LSGETBRANCH = sessionStorage.getItem("branch");
+    LSGETDUALSIGNATURE = sessionStorage.getItem("dualSignature");
+    LSGETRANK2 = sessionStorage.getItem("rank2");
+    LSGETWRITERSNAME2 = sessionStorage.getItem("writersname2");
+    LSGETDUTYTITLE2 = sessionStorage.getItem("dutytitle2");
+    LSGETBRANCH2 = sessionStorage.getItem("branch2");
   }
   render() {
     this.fillVariables();

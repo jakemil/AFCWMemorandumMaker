@@ -73,6 +73,11 @@ class Home extends Component {
     sessionStorage.setItem("rank", MEMOVAR.rank);
     sessionStorage.setItem("writersname", MEMOVAR.writersname.toUpperCase());
     sessionStorage.setItem("branch", MEMOVAR.branch);
+    sessionStorage.setItem("dualSignature", MEMOVAR.dualSignature);
+    sessionStorage.setItem("rank2", MEMOVAR.rank2);
+    sessionStorage.setItem("writersname2", MEMOVAR.writersname2 ? MEMOVAR.writersname2.toUpperCase() : "");
+    sessionStorage.setItem("dutytitle2", MEMOVAR.dutytitle2);
+    sessionStorage.setItem("branch2", MEMOVAR.branch2);
 
     //Change secondary sub-line from default when saving
     if(MEMOVAR.base === "Secondary Unit Header Line (Base, etc.)"){

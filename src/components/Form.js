@@ -25,6 +25,11 @@ class Form extends Component {
       rank: "",
       writersname: "Insert Signer's Name FIRST MI. LAST",
       branch: "USAF",
+      dualSignature: false,
+      rank2: "",
+      writersname2: "",
+      dutytitle2: "",
+      branch2: "USAF",
       references: '',
       paragraphArray: [
         {
@@ -37,6 +42,11 @@ class Form extends Component {
     this.state = {
       rank: "",
       branch: "USAF",
+      dualSignature: false,
+      rank2: "",
+      writersname2: "",
+      dutytitle2: "",
+      branch2: "USAF",
       references: '',
       paragraphArray: [
         {
@@ -58,9 +68,9 @@ class Form extends Component {
         paragraphArray
       })
     } else {
-      const {name, value} = e.target;
+      const {name, value, type, checked} = e.target;
       this.setState({
-        [name]: value
+        [name]: type === 'checkbox' ? checked : value
       });
     }
   }
@@ -70,7 +80,30 @@ class Form extends Component {
       const paragraphId = parseInt(e.target.dataset.paragraphid, 10);
       const subId = parseInt(e.target.dataset.subid, 10);
       let paragraphArray = [...this.state.paragraphArray];
-      paragraphArray[paragraphId].subparagraphs[subId] = e.target.value;
+      
+      // Handle both old string format and new object format
+      if (typeof paragraphArray[paragraphId].subparagraphs[subId] === 'string') {
+        // Convert old string format to new object format
+        paragraphArray[paragraphId].subparagraphs[subId] = {
+          subparagraphInfo: e.target.value,
+          subSubparagraphs: []
+        };
+      } else {
+        // Update existing object format
+        paragraphArray[paragraphId].subparagraphs[subId].subparagraphInfo = e.target.value;
+      }
+      
+      this.setState({ paragraphArray });
+    }
+  }
+
+  handleSubSubparagraphChange = (e) => {
+    if (["subSubparagraphInfo"].includes(e.target.className)) {
+      const paragraphId = parseInt(e.target.dataset.paragraphid, 10);
+      const subId = parseInt(e.target.dataset.subid, 10);
+      const subSubId = parseInt(e.target.dataset.subsubid, 10);
+      let paragraphArray = [...this.state.paragraphArray];
+      paragraphArray[paragraphId].subparagraphs[subId].subSubparagraphs[subSubId] = e.target.value;
       this.setState({ paragraphArray });
     }
   }
@@ -116,7 +149,21 @@ class Form extends Component {
       if (!paragraphArray[paragraphIndex].subparagraphs) {
         paragraphArray[paragraphIndex].subparagraphs = [];
       }
-      paragraphArray[paragraphIndex].subparagraphs.push("");
+      paragraphArray[paragraphIndex].subparagraphs.push({
+        subparagraphInfo: "",
+        subSubparagraphs: []
+      });
+      return { paragraphArray };
+    });
+  }
+
+  addSubSubparagraphTo = (paragraphIndex, subparagraphIndex) => {
+    this.setState((prevState) => {
+      const paragraphArray = [...prevState.paragraphArray];
+      if (!paragraphArray[paragraphIndex].subparagraphs[subparagraphIndex].subSubparagraphs) {
+        paragraphArray[paragraphIndex].subparagraphs[subparagraphIndex].subSubparagraphs = [];
+      }
+      paragraphArray[paragraphIndex].subparagraphs[subparagraphIndex].subSubparagraphs.push("");
       return { paragraphArray };
     });
   }
@@ -192,6 +239,14 @@ class Form extends Component {
     this.setState({writersname: sessionStorage.getItem("writersname")});
     this.setState({rank: sessionStorage.getItem("rank")});
     this.setState({dutytitle: sessionStorage.getItem("dutytitle")});
+    
+    // Load dual signature fields
+    this.setState({dualSignature: sessionStorage.getItem("dualSignature") === 'true'});
+    this.setState({rank2: sessionStorage.getItem("rank2") || ""});
+    this.setState({writersname2: sessionStorage.getItem("writersname2") || ""});
+    this.setState({dutytitle2: sessionStorage.getItem("dutytitle2") || ""});
+    this.setState({branch2: sessionStorage.getItem("branch2") || "USAF"});
+    
     extraParagraphs = sessionStorage.getItem("extraParagraphs")
 
     if(sessionStorage.getItem("branch") === null){}else{
@@ -231,6 +286,19 @@ class Form extends Component {
       let paragraphArray = [...prevState.paragraphArray];
       if (paragraphArray[paragraphIdx] && paragraphArray[paragraphIdx].subparagraphs) {
         paragraphArray[paragraphIdx].subparagraphs.splice(subIdx, 1);
+      }
+      return { paragraphArray };
+    });
+  }
+
+  removeSubSubparagraph = (paragraphIdx, subIdx, subSubIdx) => {
+    this.setState((prevState) => {
+      let paragraphArray = [...prevState.paragraphArray];
+      if (paragraphArray[paragraphIdx] && 
+          paragraphArray[paragraphIdx].subparagraphs && 
+          paragraphArray[paragraphIdx].subparagraphs[subIdx] &&
+          paragraphArray[paragraphIdx].subparagraphs[subIdx].subSubparagraphs) {
+        paragraphArray[paragraphIdx].subparagraphs[subIdx].subSubparagraphs.splice(subSubIdx, 1);
       }
       return { paragraphArray };
     });
@@ -372,10 +440,13 @@ class Form extends Component {
           paragraphArray={paragraphArray} 
           onParagraphChange={this.handleParagraphChange}
           onSubparagraphChange={this.handleSubparagraphChange}
+          onSubSubparagraphChange={this.handleSubSubparagraphChange}
           onRemoveParagraph={this.removeParagraph}
           onRemoveSubparagraph={this.removeSubparagraph}
+          onRemoveSubSubparagraph={this.removeSubSubparagraph}
           onAddParagraphAfter={this.addParagraphAfter}
           onAddSubparagraphTo={this.addSubparagraphTo}
+          onAddSubSubparagraphTo={this.addSubSubparagraphTo}
         />
 
 
@@ -456,6 +527,100 @@ class Form extends Component {
           </select>
         </div>
 
+        <div class="col100" style={{marginTop: '20px', padding: '15px', backgroundColor: '#f5f5f5', borderRadius: '8px'}}>
+          <label style={{fontSize: '18px', fontWeight: 'bold', marginBottom: '10px', display: 'block'}}>Dual Signature Option</label>
+          <div style={{marginBottom: '15px'}}>
+            <input
+              type="checkbox"
+              name="dualSignature"
+              id="dualSignature"
+              checked={this.state.dualSignature}
+              onChange={this.handleParagraphChange}
+              style={{marginRight: '10px'}}
+            />
+            <label htmlFor="dualSignature">Enable second signature block (for dual signatures)</label>
+          </div>
+
+          {this.state.dualSignature && (
+            <div style={{marginTop: '15px', padding: '15px', backgroundColor: '#e8f4f8', borderRadius: '6px'}}>
+              <label style={{fontSize: '16px', fontWeight: 'bold', marginBottom: '10px', display: 'block'}}>Second Signer Information</label>
+              
+              <div class="col50">
+                <input
+                  type="text"
+                  name="writersname2"
+                  id="writersname2"
+                  value={this.state.writersname2}
+                  placeholder="Second Signer's Name FIRST MI. LAST"
+                  onChange={this.handleParagraphChange}
+                  required={this.state.dualSignature}
+                />
+              </div>
+
+              <div class="col50">
+                <select
+                  type="text"
+                  name="branch2"
+                  id="branch2"
+                  value={this.state.branch2}
+                  onChange={this.handleParagraphChange}
+                  required={this.state.dualSignature}
+                >
+                  <option value="" disabled>Choose Second Signer's Branch</option>
+                  <option value="USAF">United States Air Force</option>
+                  <option value="USA">United States Army</option>
+                  <option value="USN">United States Navy</option>
+                  <option value="USMC">United States Marine Corps</option>
+                </select>
+              </div>
+
+        <div class="col50">
+                <input
+                  type="text"
+                  name="dutytitle2"
+                  id="dutytitle2"
+                  value={this.state.dutytitle2}
+                  placeholder="Second Signer's Position"
+                  onChange={this.handleParagraphChange}
+                  required={this.state.dualSignature}
+                />
+        </div>
+
+        <div class="col50">
+                <label>Second Signer's Rank</label>
+                <select
+                  name="rank2"
+                  id="rank2"
+                  value={this.state.rank2}
+                  onChange={this.handleParagraphChange}
+                  required={this.state.dualSignature}
+                >
+                  <option value="" disabled>Choose Second Signer's Rank</option>
+                  <option value="C1C">C1C</option>
+                  <option value="C2C">C2C</option>
+                  <option value="C3C">C3C</option>
+                  <option value="C4C">C4C</option>
+                  <option value="SSgt">Staff Sergeant</option>
+                  <option value="TSgt">Technical Sergeant</option>
+                  <option value="MSgt">Master Sergeant</option>
+                  <option value="SMSgt">Senior Master Sergeant</option>
+                  <option value="CMSgt">Chief Master Sergeant</option>
+                  <option value="2d Lt">Second Lieutenant</option>
+                  <option value="1st Lt">First Lieutenant</option>
+                  <option value="Capt">Captain</option>
+                  <option value="Maj">Major</option>
+                  <option value="Lt. Col.">Lieutenant Colonel</option>
+                  <option value="Colonel">Colonel</option>
+                  <option value="Brigadier Genearl">Brigadier General</option>
+                  <option value="Major General">Major General</option>
+                  <option value="Lieutenant General">Lieutenant General</option>
+                  <option value="General">General</option>
+                </select>
+              </div>
+            </div>
+          )}
+        </div>
+
 
         </form>
         
@@ -486,7 +651,7 @@ class Form extends Component {
             }}
           >
             ✅ Submit Memorandum
-          </button>
+        </button>
 
           <button 
             onClick={this.clearForm}
