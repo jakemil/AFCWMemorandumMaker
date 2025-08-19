@@ -78,6 +78,7 @@ class Home extends Component {
     sessionStorage.setItem("writersname2", MEMOVAR.writersname2 ? MEMOVAR.writersname2.toUpperCase() : "");
     sessionStorage.setItem("dutytitle2", MEMOVAR.dutytitle2);
     sessionStorage.setItem("branch2", MEMOVAR.branch2);
+    sessionStorage.setItem("attachments", JSON.stringify(MEMOVAR.attachments || []));
 
     //Change secondary sub-line from default when saving
     if(MEMOVAR.base === "Secondary Unit Header Line (Base, etc.)"){

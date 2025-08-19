@@ -1,5 +1,6 @@
 import React, { Component} from 'react';
 import jsPDF from 'jspdf'
+import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
 import { isMobile, osName} from "react-device-detect"
 //Global Variables
 var lineHeight = 1.15,
@@ -182,6 +183,13 @@ function isRankSenior(rank1, rank2) {
 
 class GenerateMemorandum extends Component {
   generateWrappedMemorandum3 = () => {
+    // Reinitialize the pdf to clear previous states - do this FIRST
+    pdf = new jsPDF({
+      orientation: 'p',
+      unit: "in",
+      format: 'letter'
+    });
+    
     //set Document font information
     //HEADER
     //Insert header DOD logo
@@ -238,8 +246,8 @@ class GenerateMemorandum extends Component {
     
     insertMultipleParagraphs();
 
-
     //SIGNATURE BLOCK
+    var signatureY = cursorY;
     if (LSGETDUALSIGNATURE === 'true' || LSGETDUALSIGNATURE === true) {
       // Dual signature: junior on left, senior on right (4.5 inches from left edge)
       // Determine which is junior/senior by comparing ranks
@@ -247,28 +255,58 @@ class GenerateMemorandum extends Component {
       
       if (isFirstSenior) {
         // First signer is senior (right), second signer is junior (left)
-        pdf.text(LSGETWRITERSNAME2 + ', ' + LSGETRANK2 + ', ' + LSGETBRANCH2, 1, cursorY + (oneLineHeight * 5));
-        pdf.text(LSGETDUTYTITLE2, 1, cursorY + (oneLineHeight * 6));
+        pdf.text(LSGETWRITERSNAME2 + ', ' + LSGETRANK2 + ', ' + LSGETBRANCH2, 1, signatureY + (oneLineHeight * 5));
+        pdf.text(LSGETDUTYTITLE2, 1, signatureY + (oneLineHeight * 6));
         
-        pdf.text(LSGETWRITERSNAME + ', ' + LSGETRANK + ', ' + LSGETBRANCH, 4.5, cursorY + (oneLineHeight * 5));
-        pdf.text(LSGETDUTYTITLE, 4.5, cursorY + (oneLineHeight * 6));
+        pdf.text(LSGETWRITERSNAME + ', ' + LSGETRANK + ', ' + LSGETBRANCH, 4.5, signatureY + (oneLineHeight * 5));
+        pdf.text(LSGETDUTYTITLE, 4.5, signatureY + (oneLineHeight * 6));
       } else {
         // First signer is junior (left), second signer is senior (right)
-        pdf.text(LSGETWRITERSNAME + ', ' + LSGETRANK + ', ' + LSGETBRANCH, 1, cursorY + (oneLineHeight * 5));
-        pdf.text(LSGETDUTYTITLE, 1, cursorY + (oneLineHeight * 6));
+        pdf.text(LSGETWRITERSNAME + ', ' + LSGETRANK + ', ' + LSGETBRANCH, 1, signatureY + (oneLineHeight * 5));
+        pdf.text(LSGETDUTYTITLE, 1, signatureY + (oneLineHeight * 6));
         
-        pdf.text(LSGETWRITERSNAME2 + ', ' + LSGETRANK2 + ', ' + LSGETBRANCH2, 4.5, cursorY + (oneLineHeight * 5));
-        pdf.text(LSGETDUTYTITLE2, 4.5, cursorY + (oneLineHeight * 6));
+        pdf.text(LSGETWRITERSNAME2 + ', ' + LSGETRANK2 + ', ' + LSGETBRANCH2, 4.5, signatureY + (oneLineHeight * 5));
+        pdf.text(LSGETDUTYTITLE2, 4.5, signatureY + (oneLineHeight * 6));
       }
     } else {
       // Single signature block (centered)
-      pdf.text(LSGETWRITERSNAME + ', ' + LSGETRANK + ', ' + LSGETBRANCH, 4.5, cursorY + (oneLineHeight * 5));
-      pdf.text(LSGETDUTYTITLE, 4.5, cursorY + (oneLineHeight * 6));
+      pdf.text(LSGETWRITERSNAME + ', ' + LSGETRANK + ', ' + LSGETBRANCH, 4.5, signatureY + (oneLineHeight * 5));
+      pdf.text(LSGETDUTYTITLE, 4.5, signatureY + (oneLineHeight * 6));
+    }
+
+    // Add attachments section - 3 lines below signature element
+    const attachments = JSON.parse(sessionStorage.getItem("attachments") || "[]");
+    if (attachments.length > 0) {
+      var attachmentY = signatureY + (oneLineHeight * 9); // 3 lines below signature element
+      
+      // Add attachment header
+      const attachmentHeader = attachments.length === 1 ? "Attachment:" : `${attachments.length} Attachments:`;
+      pdf.text(attachmentHeader, 1, attachmentY);
+      
+      // Add each attachment description immediately below (no extra line)
+      attachments.forEach((attachment, index) => {
+        attachmentY += oneLineHeight;
+        const attachmentText = `${index + 1}. ${attachment.description}`;
+        pdf.text(attachmentText, 1, attachmentY);
+        
+        attachmentY += oneLineHeight;
+        const detailText = `     ${attachment.officeOfOrigin}, ${attachment.typeOfCommunication}, ${attachment.date}${attachment.copies > 1 ? ` (${attachment.copies})` : ''}`;
+        pdf.text(detailText, 1, attachmentY);
+      });
     }
     pdf.setProperties({
       title: LSGETSUBJECT,
     })
 
+    // Check if there are PDF attachments to merge
+    const allAttachments = JSON.parse(sessionStorage.getItem("attachments") || "[]");
+    const pdfAttachments = allAttachments.filter(attachment => attachment.file && attachment.file.type === 'application/pdf');
+    
+    if (pdfAttachments.length > 0) {
+      // Convert jsPDF to PDF-lib format and merge with attachments
+      this.mergePDFsAndSave(pdf, pdfAttachments, LSGETSUBJECT);
+      return; // Exit early since mergePDFsAndSave handles the display
+    }
 
     //OS Detection for movile and various browsers. Generation incurrs errors depending on browser
     if (osName === 'Mac OS') {
@@ -345,6 +383,127 @@ fillVariables() {
         📄 Generate PDF
       </button>
     </div>)
+  }
+
+  async mergePDFsAndSave(jsPdfInstance, pdfAttachments, filename) {
+    try {
+      console.log('Starting PDF merge with attachments:', pdfAttachments);
+      // Create a new PDF document using pdf-lib
+      const mergedPdf = await PDFDocument.create();
+      
+      // Convert jsPDF to arrayBuffer and add to merged PDF
+      const jsPdfBytes = jsPdfInstance.output('arraybuffer');
+      const mainPdf = await PDFDocument.load(jsPdfBytes, { ignoreEncryption: true });
+      const mainPageIndices = Array.from({length: mainPdf.getPageCount()}, (_, i) => i);
+      const mainPages = await mergedPdf.copyPages(mainPdf, mainPageIndices);
+      mainPages.forEach((page) => mergedPdf.addPage(page));
+      
+      // Add each PDF attachment
+      for (let attachmentIndex = 0; attachmentIndex < pdfAttachments.length; attachmentIndex++) {
+        const attachment = pdfAttachments[attachmentIndex];
+        console.log('Processing attachment:', attachment.description, 'File:', attachment.file);
+        if (attachment.file && attachment.file.data) {
+          console.log('Converting base64 to buffer for:', attachment.file.name);
+          const attachmentBytes = await this.base64ToArrayBuffer(attachment.file.data);
+          console.log('Loading PDF document, bytes length:', attachmentBytes.byteLength);
+          const attachmentPdf = await PDFDocument.load(attachmentBytes, { ignoreEncryption: true });
+          const attachmentPageIndices = Array.from({length: attachmentPdf.getPageCount()}, (_, i) => i);
+          const attachmentPages = await mergedPdf.copyPages(attachmentPdf, attachmentPageIndices);
+          
+          // Embed Times Roman font once for this attachment (outside the loop)
+          const timesRomanFont = await mergedPdf.embedFont(StandardFonts.TimesRoman);
+          
+          // Add each page and mark with "Atch X (Y of Z)" in lower right
+          attachmentPages.forEach((page, pageIndex) => {
+            mergedPdf.addPage(page);
+            
+            // Add "Atch X (Y of Z)" marking in lower right corner
+            const totalPages = attachmentPages.length;
+            const currentPage = pageIndex + 1;
+            const attachmentLabel = totalPages > 1 
+              ? `Atch ${attachmentIndex + 1} (${currentPage} of ${totalPages})`
+              : `Atch ${attachmentIndex + 1}`;
+            
+            const { width, height } = page.getSize();
+            
+            page.drawText(attachmentLabel, {
+              x: width - 120, // More space for longer text
+              y: 30, // 30 points from bottom
+              size: 12, // Same size as memo text (12pt)
+              font: timesRomanFont,
+              color: rgb(0, 0, 0) // Black text using pdf-lib rgb function
+            });
+          });
+          
+          console.log('Successfully added', attachmentPages.length, 'pages from', attachment.file.name, 'marked as Atch', attachmentIndex + 1);
+        }
+      }
+      
+      // Save the merged PDF
+      const mergedPdfBytes = await mergedPdf.save();
+      
+      // Create blob and download/display
+      const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      
+      // Use the same OS detection logic as the original
+      if (osName === 'Mac OS') {
+        const dataUri = `data:application/pdf;base64,${btoa(String.fromCharCode(...mergedPdfBytes))}`;
+        const x = window.open();
+        x.document.open();
+        x.document.location = dataUri;
+      } else if (isMobile) {
+        window.open(url);
+      } else {
+        const embed = `<iframe width='100%' type='application/pdf' height='100%' src='${url}'/>`;
+        const x = window.open();
+        x.document.open();
+        x.document.write(embed);
+        x.document.close();
+      }
+      
+    } catch (error) {
+      console.error('Error merging PDFs:', error);
+      console.error('Error details:', error.message, error.stack);
+      alert(`Error merging PDF attachments: ${error.message}. The main document will be generated without attachments.`);
+      
+      // Fallback to original display method
+      if (osName === 'Mac OS') {
+        var string = jsPdfInstance.output('datauristring');
+        var x = window.open();
+        x.document.open();
+        x.document.location = string;
+      } else if (isMobile) {
+        window.open(jsPdfInstance.output('bloburl'));
+      } else {
+        var elseString = jsPdfInstance.output('bloburi');
+        var embed = "<iframe width='100%' type='application/pdf' height='100%' src='" + elseString + "'/>";
+        var elseX = window.open();
+        elseX.document.open();
+        elseX.document.write(embed);
+        elseX.document.close();
+      }
+    }
+  }
+
+  fileToArrayBuffer(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
+  base64ToArrayBuffer(base64) {
+    // Remove data URL prefix if present (e.g., "data:application/pdf;base64,")
+    const base64Data = base64.split(',')[1] || base64;
+    const binaryString = atob(base64Data);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes.buffer;
   }
 }
 

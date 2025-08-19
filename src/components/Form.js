@@ -31,6 +31,7 @@ class Form extends Component {
       dutytitle2: "",
       branch2: "USAF",
       references: '',
+      attachments: [],
       paragraphArray: [
         {
           paraInfo: "",
@@ -48,6 +49,7 @@ class Form extends Component {
       dutytitle2: "",
       branch2: "USAF",
       references: '',
+      attachments: [],
       paragraphArray: [
         {
           paraInfo: "",
@@ -168,6 +170,64 @@ class Form extends Component {
     });
   }
 
+  addAttachment = () => {
+    this.setState((prevState) => ({
+      attachments: [
+        ...prevState.attachments,
+        {
+          description: "",
+          officeOfOrigin: "",
+          typeOfCommunication: "",
+          date: "",
+          copies: 1,
+          file: null
+        }
+      ]
+    }));
+  }
+
+  removeAttachment = (index) => {
+    this.setState((prevState) => {
+      const attachments = [...prevState.attachments];
+      attachments.splice(index, 1);
+      return { attachments };
+    });
+  }
+
+  handleAttachmentChange = (index, field, value) => {
+    this.setState((prevState) => {
+      const attachments = [...prevState.attachments];
+      attachments[index][field] = value;
+      return { attachments };
+    });
+  }
+
+  handleFileUpload = (index, file) => {
+    if (file && file.type === 'application/pdf') {
+      // Convert file to base64 for storage
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.setState((prevState) => {
+          const attachments = [...prevState.attachments];
+          attachments[index].file = {
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            data: e.target.result // base64 string
+          };
+          return { attachments };
+        });
+      };
+      reader.readAsDataURL(file);
+    } else {
+      this.setState((prevState) => {
+        const attachments = [...prevState.attachments];
+        attachments[index].file = null;
+        return { attachments };
+      });
+    }
+  }
+
   showModal = e => {
       this.setState({
         showModal: !this.state.showModal
@@ -246,6 +306,12 @@ class Form extends Component {
     this.setState({writersname2: sessionStorage.getItem("writersname2") || ""});
     this.setState({dutytitle2: sessionStorage.getItem("dutytitle2") || ""});
     this.setState({branch2: sessionStorage.getItem("branch2") || "USAF"});
+    
+    // Load attachments
+    const savedAttachments = sessionStorage.getItem("attachments");
+    if (savedAttachments) {
+      this.setState({attachments: JSON.parse(savedAttachments)});
+    }
     
     extraParagraphs = sessionStorage.getItem("extraParagraphs")
 
@@ -525,6 +591,107 @@ class Form extends Component {
             <option value="Lieutenant General">Lieutenant General</option>
             <option value="General">General</option>
           </select>
+        </div>
+
+        <div class="col100" style={{marginTop: '20px', padding: '15px', backgroundColor: '#f0f8ff', borderRadius: '8px'}}>
+          <label style={{fontSize: '18px', fontWeight: 'bold', marginBottom: '10px', display: 'block'}}>Attachments</label>
+          
+          {this.state.attachments.map((attachment, index) => (
+            <div key={index} style={{marginBottom: '15px', padding: '15px', backgroundColor: '#ffffff', borderRadius: '6px', border: '1px solid #ddd'}}>
+              <label style={{fontSize: '16px', fontWeight: 'bold', marginBottom: '10px', display: 'block'}}>Attachment {index + 1}</label>
+              
+              <div class="col100">
+                <input
+                  type="text"
+                  placeholder="Brief description of attachment"
+                  value={attachment.description}
+                  onChange={(e) => this.handleAttachmentChange(index, 'description', e.target.value)}
+                  style={{marginBottom: '10px'}}
+                  required
+                />
+              </div>
+
+              <div class="col50">
+                <input
+                  type="text"
+                  placeholder="Office of origin"
+                  value={attachment.officeOfOrigin}
+                  onChange={(e) => this.handleAttachmentChange(index, 'officeOfOrigin', e.target.value)}
+                  required
+                />
+              </div>
+
+              <div class="col50">
+                <input
+                  type="text"
+                  placeholder="Type of communication"
+                  value={attachment.typeOfCommunication}
+                  onChange={(e) => this.handleAttachmentChange(index, 'typeOfCommunication', e.target.value)}
+                  required
+                />
+              </div>
+
+              <div class="col50">
+                <input
+                  type="date"
+                  value={attachment.date}
+                  onChange={(e) => this.handleAttachmentChange(index, 'date', e.target.value)}
+                  required
+                />
+              </div>
+
+              <div class="col50">
+                <input
+                  type="number"
+                  placeholder="Number of copies"
+                  min="1"
+                  value={attachment.copies}
+                  onChange={(e) => this.handleAttachmentChange(index, 'copies', parseInt(e.target.value) || 1)}
+                />
+              </div>
+
+              <div class="col100">
+                <label style={{marginBottom: '5px', display: 'block'}}>Upload PDF Attachment:</label>
+                <input
+                  type="file"
+                  accept=".pdf"
+                  onChange={(e) => this.handleFileUpload(index, e.target.files[0])}
+                  style={{marginBottom: '10px'}}
+                />
+              </div>
+
+              <button 
+                type="button" 
+                onClick={() => this.removeAttachment(index)}
+                style={{
+                  backgroundColor: '#f44336', 
+                  color: 'white', 
+                  border: 'none', 
+                  padding: '8px 16px', 
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                Remove Attachment
+              </button>
+            </div>
+          ))}
+
+          <button 
+            type="button" 
+            onClick={this.addAttachment}
+            style={{
+              backgroundColor: '#4CAF50', 
+              color: 'white', 
+              border: 'none', 
+              padding: '12px 24px', 
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '16px'
+            }}
+          >
+            Add Attachment
+          </button>
         </div>
 
         <div class="col100" style={{marginTop: '20px', padding: '15px', backgroundColor: '#f5f5f5', borderRadius: '8px'}}>

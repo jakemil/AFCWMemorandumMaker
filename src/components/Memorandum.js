@@ -179,6 +179,31 @@ class Memorandum extends Component {
               <br /><br />
             </div>
           )}
+
+          {/* Attachments Section */}
+          {(() => {
+            const attachments = JSON.parse(sessionStorage.getItem("attachments") || "[]");
+            if (attachments.length > 0) {
+              return (
+                <div style={{marginTop: '2rem'}}>
+                  <strong>{attachments.length === 1 ? "Attachment:" : `${attachments.length} Attachments:`}</strong>
+                  <br /><br />
+                  {attachments.map((attachment, index) => (
+                    <div key={index} style={{marginBottom: '1rem'}}>
+                      <strong>{index + 1}.</strong> {attachment.description}
+                      <br />
+                      <span style={{marginLeft: '1em'}}>
+                        {attachment.officeOfOrigin}, {attachment.typeOfCommunication}, {attachment.date}
+                        {attachment.copies > 1 && ` (${attachment.copies})`}
+                      </span>
+                      <br />
+                    </div>
+                  ))}
+                </div>
+              );
+            }
+            return null;
+          })()}
         </div>
     );
   }
