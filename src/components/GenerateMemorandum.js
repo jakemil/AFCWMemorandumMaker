@@ -232,12 +232,70 @@ class GenerateMemorandum extends Component {
       const referenceLines = references.split('\n');
       referenceLines.forEach((line, index) => {
         if (line.trim() !== "") {
+          cursorY += oneLineHeight;
+          let xPosition = 1;
+          
           if (index === 0) {
-            // First reference: two spaces after colon
-            pdf.text("References:  " + line.trim(), 1, cursorY += oneLineHeight);
+            // First reference: add "References:" label
+            pdf.setFont('times', 'normal');
+            pdf.text("References:  ", xPosition, cursorY);
+            xPosition += pdf.getTextWidth("References:  ");
           } else {
             // Subsequent references: aligned under the first one
-            pdf.text("                      " + line.trim(), 1, cursorY += oneLineHeight);
+            xPosition += pdf.getTextWidth("References:  ");
+          }
+          
+          // Parse the reference to separate publication/date from title
+          const referenceLine = line.trim();
+          
+          // Look for pattern: Publication, Date, Title
+          // Find the last comma that separates date from title
+          const commas = [];
+          let match;
+          const regex = /,/g;
+          while ((match = regex.exec(referenceLine)) !== null) {
+            commas.push(match.index);
+          }
+          
+          if (commas.length >= 2) {
+            // Format: Publication, Date, Title
+            const lastCommaIndex = commas[commas.length - 1];
+            const publicationAndDate = referenceLine.substring(0, lastCommaIndex + 1);
+            const title = referenceLine.substring(lastCommaIndex + 1).trim();
+            
+            // Render publication and date in normal font
+            pdf.setFont('times', 'normal');
+            pdf.text(publicationAndDate + " ", xPosition, cursorY);
+            xPosition += pdf.getTextWidth(publicationAndDate + " ");
+            
+            // Render title in italic
+            pdf.setFont('times', 'italic');
+            pdf.text(title, xPosition, cursorY);
+          } else if (commas.length === 1) {
+            // Format might be: Publication, Title (no separate date)
+            const commaIndex = commas[0];
+            const publication = referenceLine.substring(0, commaIndex + 1);
+            const title = referenceLine.substring(commaIndex + 1).trim();
+            
+            // Check if what follows the comma looks like a date (contains numbers)
+            if (/\d/.test(title.split(' ')[0])) {
+              // Probably a date, so render everything in normal font for safety
+              pdf.setFont('times', 'normal');
+              pdf.text(referenceLine, xPosition, cursorY);
+            } else {
+              // Render publication in normal font
+              pdf.setFont('times', 'normal');
+              pdf.text(publication + " ", xPosition, cursorY);
+              xPosition += pdf.getTextWidth(publication + " ");
+              
+              // Render title in italic
+              pdf.setFont('times', 'italic');
+              pdf.text(title, xPosition, cursorY);
+            }
+          } else {
+            // No commas or unclear format, render everything in normal font
+            pdf.setFont('times', 'normal');
+            pdf.text(referenceLine, xPosition, cursorY);
           }
         }
       });
